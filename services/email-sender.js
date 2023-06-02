@@ -1,17 +1,20 @@
 const nodemailer = require('nodemailer');
+require('dotenv').config()
+
+const mail = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+        type: 'OAuth2',
+        user: process.env.GMAIL_USER,
+        clientId: process.env.GMAIL_CLIENT_ID,
+        clientSecret: process.env.GMAIL_CLIENT_SECRET,
+        refreshToken: process.env.GMAIL_REFRESH_TOKEN,
+        accessToken: process.env.GMAIL_ACCESS_TOKEN
+    }
+});
+
 
 async function sendEmailRegis(user_email, user_username, user_password, user_token) {
-    const mail = nodemailer.createTransport({
-        service: 'gmail',
-        type:'SMTP',
-        host: "smtp.gmail.com",
-        //port: 465,
-        secure: true,
-        auth: {
-            user: 'emelinecassidy@gmail.com',
-            pass: 'lwjukpmnymhftwss'
-        }
-    });
     var mailOptions = {
         from: 'TVnow',
         to: user_email,
@@ -25,7 +28,7 @@ async function sendEmailRegis(user_email, user_username, user_password, user_tok
     await new Promise((resolve, reject) => {
         mail.sendMail(mailOptions, (err, info) => {
             if (err) {
-                reject (err)
+                reject(err)
             } else {
                 resolve(console.log(info))
             }
@@ -33,17 +36,6 @@ async function sendEmailRegis(user_email, user_username, user_password, user_tok
     });
 }
 async function sendEmailChangePassword(user_email, user_token) {
-    const mail = nodemailer.createTransport({
-        service: 'gmail',
-        type: 'SMTP',
-        host: "smtp.gmail.com",
-        //port: 465,
-        secure: true,
-        auth: {
-            user: 'emelinecassidy@gmail.com',
-            pass: 'lwjukpmnymhftwss'
-        }
-    });
     var mailOptions = {
         from: 'TVnow',
         to: user_email,
@@ -56,7 +48,7 @@ async function sendEmailChangePassword(user_email, user_token) {
     await new Promise((resolve, reject) => {
         mail.sendMail(mailOptions, (err, info) => {
             if (err) {
-                reject (err)
+                reject(err)
             } else {
                 resolve(console.log(info))
             }
@@ -64,17 +56,6 @@ async function sendEmailChangePassword(user_email, user_token) {
     });
 }
 async function sendEmailTwoFactor(user_email, id_token, timekey_token) {
-    const mail = nodemailer.createTransport({
-        service: 'gmail',
-        type: 'SMTP',
-        host: "smtp.gmail.com",
-        //port: 465,
-        secure: true,
-        auth: {
-            user: 'emelinecassidy@gmail.com',
-            pass: 'lwjukpmnymhftwss'
-        }
-    });
     var mailOptions = {
         from: 'TVnow',
         to: user_email,
@@ -85,7 +66,7 @@ async function sendEmailTwoFactor(user_email, id_token, timekey_token) {
     await new Promise((resolve, reject) => {
         mail.sendMail(mailOptions, (err, info) => {
             if (err) {
-                reject (err)
+                reject(err)
             } else {
                 resolve(console.log(info))
             }
@@ -93,17 +74,8 @@ async function sendEmailTwoFactor(user_email, id_token, timekey_token) {
     });
 }
 async function sendEmailForgotPassword(user_email, user_username, user_password) {
-    const mail = nodemailer.createTransport({
-        service: 'gmail',
-        type: 'SMTP',
-        host: "smtp.gmail.com",
-        //port: 465,
-        secure: true,
-        auth: {
-            user: 'emelinecassidy@gmail.com',
-            pass: 'lwjukpmnymhftwss'
-        }
-    });
+
+
     var mailOptions = {
         from: 'TVnow',
         to: user_email,
@@ -117,13 +89,13 @@ async function sendEmailForgotPassword(user_email, user_username, user_password)
     await new Promise((resolve, reject) => {
         mail.sendMail(mailOptions, (err, info) => {
             if (err) {
-                reject (err)
+                reject(err)
             } else {
                 resolve(console.log(info))
             }
         });
     });
-    
+
 }
 
 module.exports = { sendEmailRegis, sendEmailChangePassword, sendEmailTwoFactor, sendEmailForgotPassword };
