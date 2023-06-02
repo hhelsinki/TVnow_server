@@ -3,10 +3,10 @@ const baseApiKey = require('../api-key');
 const MongoClients = require('mongodb').MongoClient
 require('dotenv').config()
 
-/*const url = process.env.MONGO_URL;
+const url = process.env.MONGO_URL;
 const client = new MongoClient(url);
 const dbName = 'favourite';
-const collection = client.db(dbName).collection('list');*/
+const collection = client.db(dbName).collection('list');
 
 /*
 const url = 'mongodb://localhost:27017';
@@ -128,7 +128,7 @@ async function setField(req, res) {
 }
 
 async function getFavouriteList(req, res) {
-  /*let api_key = req.headers.api_key;
+  let api_key = req.headers.api_key;
   let user_token = req.headers.user_token;
 
   if (api_key === baseApiKey) {
@@ -162,20 +162,7 @@ async function getFavouriteList(req, res) {
   }
   if (api_key != baseApiKey) {
     res.sendStatus(402);
-  }*/
-
-
-const connectionString = 'mongodb+srv://hhelsinki:WgIPDDBDV3RSB8t6@cluster0.nmoub.mongodb.net/?retryWrites=true&w=majority'
-
-MongoClients.connect(connectionString)
-.then(client => {
-    console.log('Connected to mongo cluster')
-    const db = client.db('favourite')
-    const taskCollection = db.collection('list')
-
-    //CRUD request
-})
-.catch(error=> console.error(error))
+  }
 
 
 }
