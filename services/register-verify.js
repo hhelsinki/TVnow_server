@@ -20,6 +20,7 @@ function registerVerify(req, res) {
 					if (token === result[0].access_token) {
 						pool.query('UPDATE user SET is_verify = 1 WHERE username = ?', [user], (err, result) => {
 							if (err) throw err;
+							console.log(result.affectedRows);
 							switch (result.effectedRows) {
 								case 1:
 									res.send({ status: true, msg: 'correct username and token, redirect to client login page' });

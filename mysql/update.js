@@ -72,7 +72,7 @@ const updateUserPassword = (req, res) => {
                                 if (err) {
                                     res.send({ status: false, msg: 'You must activate this account before change password' });
                                 }
-
+                                console.log(result.affectedRows);
                                 switch (result.affectedRows) {
                                     case 1:
                                         res.send({ status: true, msg: 'Password is successfully saved!' });
@@ -138,7 +138,7 @@ function updateTwoFactor(req, res) {
                                     //update db mistake_expire
                                     pool.query('UPDATE authen SET mistake_expire = ? WHERE email =?', [unix_timestamp + 3600, email], (err, result) => {
                                         if (err) throw err;
-
+                                        console.log(result.affectedRows);
                                         switch (result.affectedRows) {
                                             case 1:
                                                 res.send({ status: 'false', msg: 'Please login again at', time: unix_timestamp + 3600 });
@@ -155,18 +155,20 @@ function updateTwoFactor(req, res) {
                                     case null: case undefined:
                                         pool.query('UPDATE authen SET mistake_count = ? WHERE email = ?', [mistakeCount + 1, email], (err, result) => {
                                             if (err) throw err;
+                                            console.log(result.affectedRows);
                                             res.send({ status: false, msg: 'Invalid Digit' });
                                         });
                                         break;
                                     default:
                                         pool.query('UPDATE authen SET mistake_count = 0 WHERE email = ?', email, (err, result) => {
                                             if (err) throw err;
-
+                                            console.log(result.affectedRows);
                                             switch (result.affectedRows) {
                                                 case 1:
                                                     const access_token = randtoken.generate(20);
                                                     pool.query('UPDATE user SET access_token = ? WHERE email = ?', [access_token, email], (err, result) => {
                                                         if (err) throw err;
+                                                        console.log(result.affectedRows);
                                                         switch (result.affectedRows) {
                                                             case 1:
                                                                 res.send({ status: true, data: access_token });
@@ -204,7 +206,7 @@ function updateTwoFactor(req, res) {
                         if (unix_timestamp > mistakeExpire) {
                             pool.query('UPDATE authen SET mistake_count = 0, mistake_expire = 0 WHERE email = ?', email, (err, result) => {
                                 if (err) throw err;
-
+                                console.log(result.affectedRows);
                                 switch (result.affectedRows) {
                                     case 1:
                                         if (isTwoFactor === 0) {
@@ -222,6 +224,7 @@ function updateTwoFactor(req, res) {
                                                         let newMistakeCount = 0;
                                                         pool.query('UPDATE authen SET mistake_count = ? WHERE email = ?', [newMistakeCount + 1, email], (err, result) => {
                                                             if (err) throw err;
+                                                            console.log(result.affectedRows);
                                                             res.send({ status: false, msg: 'Invalid Digit' });
                                                         });
                                                         break;
@@ -229,6 +232,7 @@ function updateTwoFactor(req, res) {
                                                         const access_token = randtoken.generate(20);
                                                         pool.query('UPDATE user SET access_token = ? WHERE email = ?', [access_token, email], (err, result) => {
                                                             if (err) throw err;
+                                                            console.log(result.affectedRows);
                                                             switch (result.affectedRows) {
                                                                 case 1:
                                                                     res.send({ status: true, data: access_token });
@@ -365,6 +369,7 @@ function reqUserPassword(req, res) {
                     console.log(token);
                     pool.query('UPDATE user SET access_token = ? WHERE email = ?', [token, email], (err, result) => {
                         if (err) throw err;
+                        console.log(result.affectedRows);
                         switch (result.affectedRows) {
                             case 1:
                                 sendEmailChangePassword(email, token);
@@ -403,7 +408,7 @@ const reqUserTwoFactor = (req, res) => {
 
         pool.query('UPDATE user SET is_twofactor = ? WHERE BINARY access_token = ?', [bool, access_token], (err, result) => {
             if (err) throw err;
-
+            console.log(result.affectedRows);
             switch (result.affectedRows) {
                 case 1:
                     pool.query('UPDATE authen SET is_twofactor = ? WHERE email = ?', [bool, email], (err, result) => {
@@ -489,7 +494,7 @@ const reqUserRedeemGiftcard = (req, res) => {
 
                                                             pool.query('UPDATE giftcard SET email_used = null WHERE email_used = ?', [newEmail], (err, result) => {
                                                                 if (err) throw err;
-
+                                                                console.log(result.affectedRows);
                                                                 switch (result.affectedRows) {
                                                                     case 1:
                                                                         pool.query(`UPDATE giftcard SET is_used = 1, email_used = ?,code_expire = UNIX_TIMESTAMP() + 2592000 WHERE code = ?`, [newEmail, code], (err, result) => {
@@ -499,7 +504,7 @@ const reqUserRedeemGiftcard = (req, res) => {
                                                                                 case 1:
                                                                                     pool.query('UPDATE payment SET code = ? WHERE email = ?', [code, newEmail], (err, result) => {
                                                                                         if (err) throw err;
-
+                                                                                        console.log(result.affectedRows);
                                                                                         switch (result.affectedRows) {
                                                                                             case 1:
                                                                                                 res.send({ status: true, msg: 'Redeem Code Successfully!' });

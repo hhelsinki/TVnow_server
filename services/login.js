@@ -77,7 +77,7 @@ function login(req, res) {
                                         const token = randtoken.generate(20);
                                         pool.query('UPDATE user SET access_token = ? WHERE id = ?', [token, results.id], (err, result) => {
                                             if (err) throw err;
-                                            //console.log(result.affectedRows);
+                                            console.log(result.affectedRows);
                                             switch (result.affectedRows) {
                                                 case 1:
                                                     //upsert to mongo
