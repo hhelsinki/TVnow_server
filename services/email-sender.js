@@ -1,11 +1,11 @@
 const nodemailer = require('nodemailer');
 
-function sendEmailRegis(user_email, user_username, user_password, user_token) {
+async function sendEmailRegis(user_email, user_username, user_password, user_token) {
     const mail = nodemailer.createTransport({
         service: 'gmail',
         host: "smtp.gmail.com",
         port: 465,
-        secure: true,
+        secure: false,
         auth: {
             user: 'bongkotsaelo.cmtc@gmail.com',
             pass: 'hyqxyxbcbfubbzvp'
@@ -21,7 +21,7 @@ function sendEmailRegis(user_email, user_username, user_password, user_token) {
             <h4>Password:</b> ${user_password}</h4>
             <p><i>Please do not share the password with anyone.</i></p>`
     }
-    new Promise((resolve, reject) => {
+    await new Promise((resolve, reject) => {
         mail.sendMail(mailOptions, (err, info) => {
             if (err) {
                 reject (err)
@@ -31,12 +31,12 @@ function sendEmailRegis(user_email, user_username, user_password, user_token) {
         });
     });
 }
-function sendEmailChangePassword(user_email, user_token) {
+async function sendEmailChangePassword(user_email, user_token) {
     const mail = nodemailer.createTransport({
         service: 'gmail',
         host: "smtp.gmail.com",
         port: 465,
-        secure: true,
+        secure: false,
         auth: {
             user: 'bongkotsaelo.cmtc@gmail.com',
             pass: 'hyqxyxbcbfubbzvp'
@@ -51,7 +51,7 @@ function sendEmailChangePassword(user_email, user_token) {
             <i>If you're not submit this, we highly recommended you to change your current password.</i>
         </h3>`
     }
-    new Promise((resolve, reject) => {
+    await new Promise((resolve, reject) => {
         mail.sendMail(mailOptions, (err, info) => {
             if (err) {
                 reject (err)
@@ -61,12 +61,12 @@ function sendEmailChangePassword(user_email, user_token) {
         });
     });
 }
-function sendEmailTwoFactor(user_email, id_token, timekey_token) {
+async function sendEmailTwoFactor(user_email, id_token, timekey_token) {
     const mail = nodemailer.createTransport({
         service: 'gmail',
         host: "smtp.gmail.com",
         port: 465,
-        secure: true,
+        secure: false,
         auth: {
             user: 'bongkotsaelo.cmtc@gmail.com',
             pass: 'hyqxyxbcbfubbzvp'
@@ -79,7 +79,7 @@ function sendEmailTwoFactor(user_email, id_token, timekey_token) {
         html: `<h2>Please enter these numbers to login, or go to this <a href="https://tvnow-client.web.app/login-twofac_email?user=${user_email}&token=${timekey_token}">link within 15 minutes.</a></h2>
             <h1>Code: ${id_token}</h1>`
     }
-    new Promise((resolve, reject) => {
+    await new Promise((resolve, reject) => {
         mail.sendMail(mailOptions, (err, info) => {
             if (err) {
                 reject (err)
@@ -89,12 +89,12 @@ function sendEmailTwoFactor(user_email, id_token, timekey_token) {
         });
     });
 }
-function sendEmailForgotPassword(user_email, user_username, user_password) {
+async function sendEmailForgotPassword(user_email, user_username, user_password) {
     const mail = nodemailer.createTransport({
         service: 'gmail',
         host: "smtp.gmail.com",
         port: 465,
-        secure: true,
+        secure: false,
         auth: {
             user: 'bongkotsaelo.cmtc@gmail.com',
             pass: 'hyqxyxbcbfubbzvp'
@@ -110,7 +110,7 @@ function sendEmailForgotPassword(user_email, user_username, user_password) {
             <h4>Password:</b> ${user_password}</h4>
             <p><i>Please do not share the password with anyone.</i></p>`
     }
-    new Promise((resolve, reject) => {
+    await new Promise((resolve, reject) => {
         mail.sendMail(mailOptions, (err, info) => {
             if (err) {
                 reject (err)
