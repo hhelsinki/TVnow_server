@@ -3,12 +3,13 @@ const nodemailer = require('nodemailer');
 async function sendEmailRegis(user_email, user_username, user_password, user_token) {
     const mail = nodemailer.createTransport({
         service: 'gmail',
+        type:'SMTP',
         host: "smtp.gmail.com",
-        port: 465,
-        secure: false,
+        //port: 465,
+        secure: true,
         auth: {
-            user: 'bongkotsaelo.cmtc@gmail.com',
-            pass: 'hyqxyxbcbfubbzvp'
+            user: 'emelinecassidy@gmail.com',
+            pass: 'lwjukpmnymhftwss'
         }
     });
     var mailOptions = {
@@ -34,12 +35,13 @@ async function sendEmailRegis(user_email, user_username, user_password, user_tok
 async function sendEmailChangePassword(user_email, user_token) {
     const mail = nodemailer.createTransport({
         service: 'gmail',
+        type: 'SMTP',
         host: "smtp.gmail.com",
-        port: 465,
-        secure: false,
+        //port: 465,
+        secure: true,
         auth: {
-            user: 'bongkotsaelo.cmtc@gmail.com',
-            pass: 'hyqxyxbcbfubbzvp'
+            user: 'emelinecassidy@gmail.com',
+            pass: 'lwjukpmnymhftwss'
         }
     });
     var mailOptions = {
@@ -64,12 +66,13 @@ async function sendEmailChangePassword(user_email, user_token) {
 async function sendEmailTwoFactor(user_email, id_token, timekey_token) {
     const mail = nodemailer.createTransport({
         service: 'gmail',
+        type: 'SMTP',
         host: "smtp.gmail.com",
-        port: 465,
-        secure: false,
+        //port: 465,
+        secure: true,
         auth: {
-            user: 'bongkotsaelo.cmtc@gmail.com',
-            pass: 'hyqxyxbcbfubbzvp'
+            user: 'emelinecassidy@gmail.com',
+            pass: 'lwjukpmnymhftwss'
         }
     });
     var mailOptions = {
@@ -92,12 +95,13 @@ async function sendEmailTwoFactor(user_email, id_token, timekey_token) {
 async function sendEmailForgotPassword(user_email, user_username, user_password) {
     const mail = nodemailer.createTransport({
         service: 'gmail',
+        type: 'SMTP',
         host: "smtp.gmail.com",
-        port: 465,
-        secure: false,
+        //port: 465,
+        secure: true,
         auth: {
-            user: 'bongkotsaelo.cmtc@gmail.com',
-            pass: 'hyqxyxbcbfubbzvp'
+            user: 'emelinecassidy@gmail.com',
+            pass: 'lwjukpmnymhftwss'
         }
     });
     var mailOptions = {
