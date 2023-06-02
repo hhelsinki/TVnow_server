@@ -102,6 +102,8 @@ function login(req, res) {
                                                     break;
                                                 case 0: default:
                                                     console.log('err db: user cannot update');
+                                                    console.log(token, results.id);
+                                                    //
                                                     break;
                                             }
                                         });
