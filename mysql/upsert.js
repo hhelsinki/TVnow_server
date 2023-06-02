@@ -30,7 +30,8 @@ function upsertUser(req, res) {
 						case 0:
 							pool.query('UPDATE giftcard SET is_used = 1 WHERE email_used = ?', [email], (err, result) => {
 								if (err) throw err;
-								switch (result.effectedRows) {
+								console.log(result.affectedRows);
+								switch (result.affectedRows) {
 									case 1:
 										//payment
 										pool.query('SELECT * FROM payment where email = ?', [email], (err, result) => {
