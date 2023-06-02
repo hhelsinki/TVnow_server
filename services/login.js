@@ -55,7 +55,7 @@ function login(req, res) {
                                                     const timekey_token = randtoken.generate(20);
                                                     pool.query('UPDATE authen SET id_token = ?, timekey_token = ?, timekey_expire = UNIX_TIMESTAMP()+4500 WHERE email = ?', [timekey_id, timekey_token, results.email], (err, result) => {
                                                         if (err) throw err;
-                                                        switch (result.changedRows) {
+                                                        switch (result.effectedRows) {
                                                             case 1:
                                                                 sendEmailTwoFactor(results.email, timekey_id, timekey_token);
                                                                 res.send({ status: true, data: { username: results.email, token: timekey_token }, msg: 'Time based key is send to your email' });
@@ -77,8 +77,8 @@ function login(req, res) {
                                         const token = randtoken.generate(20);
                                         pool.query('UPDATE user SET access_token = ? WHERE id = ?', [token, results.id], (err, result) => {
                                             if (err) throw err;
-                                            console.log(result.changedRows);
-                                            switch (result.changedRows) {
+                                            //console.log(result.affectedRows);
+                                            switch (result.affectedRows) {
                                                 case 1:
                                                     //upsert to mongo
                                                     let insertNoSql = async () => {
@@ -102,8 +102,6 @@ function login(req, res) {
                                                     break;
                                                 case 0: default:
                                                     console.log('err db: user cannot update');
-                                                    console.log(token, results.id);
-                                                    //
                                                     break;
                                             }
                                         });
@@ -143,7 +141,7 @@ function logout(req, res) {
     if (api_key === baseApiKey) {
         pool.query('UPDATE user SET access_token = ? WHERE email = ?', [access_token, email], (err, result) => {
             if (err) throw err;
-            switch (result.changedRows) {
+            switch (result.effectedRows) {
                 case 1:
                     //upsert to mongo
                     let updateNoSql = async () => {
