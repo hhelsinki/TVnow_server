@@ -1,11 +1,13 @@
 const mysql = require('mysql');
 
-const pool = mysql.createConnection({
+const pool = mysql.createConnection(process.env.DATABASE_URL);
+/*const pool = mysql.createConnection({
     host: '127.0.0.1',
     user: 'admin',
     password: 'meanttobe',
     database: 'tv_now'
-});
+});*/
+
 pool.connect((err) => {
     if (!!err) {
         console.log(err)

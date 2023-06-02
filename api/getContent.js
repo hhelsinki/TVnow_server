@@ -847,7 +847,11 @@ const getShowByNameQuery = (req, res) => {
 
     if (api_key === baseApiKey) {
         if (!user_token) {
-            res.sendStatus(401);
+            res.status(200).json({
+                info: contentShows[req.params.name].info,
+                allSeasons: contentShows[req.params.name].allSeasons,
+                related: contentShows[req.params.name].related
+            });
             return;
         }
         res.status(200).json(contentShows[req.params.name])
@@ -864,7 +868,10 @@ const getMovieByNameQuery = (req, res) => {
 
     if (api_key === baseApiKey) {
         if (!user_token) {
-            res.sendStatus(401);
+            res.status(200).json({
+                info: contentMovies[req.params.name].info,
+                related: contentMovies[req.params.name].related
+            });
             return;
         }
         res.status(200).json(contentMovies[req.params.name]);
