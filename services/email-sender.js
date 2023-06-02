@@ -3,6 +3,9 @@ const nodemailer = require('nodemailer');
 function sendEmailRegis(user_email, user_username, user_password, user_token) {
     const mail = nodemailer.createTransport({
         service: 'gmail',
+        host: "smtp.gmail.com",
+        port: 587,
+        secure: true,
         auth: {
             user: 'bongkotsaelo.cmtc@gmail.com',
             pass: 'hyqxyxbcbfubbzvp'
@@ -26,6 +29,9 @@ function sendEmailRegis(user_email, user_username, user_password, user_token) {
 function sendEmailChangePassword(user_email, user_token) {
     const mail = nodemailer.createTransport({
         service: 'gmail',
+        host: "smtp.gmail.com",
+        port: 587,
+        secure: true,
         auth: {
             user: 'bongkotsaelo.cmtc@gmail.com',
             pass: 'hyqxyxbcbfubbzvp'
@@ -48,6 +54,9 @@ function sendEmailChangePassword(user_email, user_token) {
 function sendEmailTwoFactor(user_email, id_token, timekey_token) {
     const mail = nodemailer.createTransport({
         service: 'gmail',
+        host: "smtp.gmail.com",
+        port: 587,
+        secure: true,
         auth: {
             user: 'bongkotsaelo.cmtc@gmail.com',
             pass: 'hyqxyxbcbfubbzvp'
@@ -65,9 +74,12 @@ function sendEmailTwoFactor(user_email, id_token, timekey_token) {
         console.log(info);
     })
 }
-function sendEmailForgotPassword(user_email, user_username,  user_password) {
+function sendEmailForgotPassword(user_email, user_username, user_password) {
     const mail = nodemailer.createTransport({
         service: 'gmail',
+        host: "smtp.gmail.com",
+        port: 587,
+        secure: true,
         auth: {
             user: 'bongkotsaelo.cmtc@gmail.com',
             pass: 'hyqxyxbcbfubbzvp'
@@ -89,4 +101,4 @@ function sendEmailForgotPassword(user_email, user_username,  user_password) {
     })
 }
 
-module.exports = {sendEmailRegis, sendEmailChangePassword, sendEmailTwoFactor, sendEmailForgotPassword};
+module.exports = { sendEmailRegis, sendEmailChangePassword, sendEmailTwoFactor, sendEmailForgotPassword };
