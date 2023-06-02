@@ -21,10 +21,15 @@ function sendEmailRegis(user_email, user_username, user_password, user_token) {
             <h4>Password:</b> ${user_password}</h4>
             <p><i>Please do not share the password with anyone.</i></p>`
     }
-    mail.sendMail(mailOptions, (err, info) => {
-        if (err) throw err;
-        console.log(info);
-    })
+    new Promise((resolve, reject) => {
+        mail.sendMail(mailOptions, (err, info) => {
+            if (err) {
+                reject (err)
+            } else {
+                resolve(console.log(info))
+            }
+        });
+    });
 }
 function sendEmailChangePassword(user_email, user_token) {
     const mail = nodemailer.createTransport({
@@ -46,10 +51,15 @@ function sendEmailChangePassword(user_email, user_token) {
             <i>If you're not submit this, we highly recommended you to change your current password.</i>
         </h3>`
     }
-    mail.sendMail(mailOptions, (err, info) => {
-        if (err) throw err;
-        console.log(info);
-    })
+    new Promise((resolve, reject) => {
+        mail.sendMail(mailOptions, (err, info) => {
+            if (err) {
+                reject (err)
+            } else {
+                resolve(console.log(info))
+            }
+        });
+    });
 }
 function sendEmailTwoFactor(user_email, id_token, timekey_token) {
     const mail = nodemailer.createTransport({
@@ -69,10 +79,15 @@ function sendEmailTwoFactor(user_email, id_token, timekey_token) {
         html: `<h2>Please enter these numbers to login, or go to this <a href="https://tvnow-client.web.app/login-twofac_email?user=${user_email}&token=${timekey_token}">link within 15 minutes.</a></h2>
             <h1>Code: ${id_token}</h1>`
     }
-    mail.sendMail(mailOptions, (err, info) => {
-        if (err) throw err;
-        console.log(info);
-    })
+    new Promise((resolve, reject) => {
+        mail.sendMail(mailOptions, (err, info) => {
+            if (err) {
+                reject (err)
+            } else {
+                resolve(console.log(info))
+            }
+        });
+    });
 }
 function sendEmailForgotPassword(user_email, user_username, user_password) {
     const mail = nodemailer.createTransport({
@@ -95,10 +110,16 @@ function sendEmailForgotPassword(user_email, user_username, user_password) {
             <h4>Password:</b> ${user_password}</h4>
             <p><i>Please do not share the password with anyone.</i></p>`
     }
-    mail.sendMail(mailOptions, (err, info) => {
-        if (err) throw err;
-        console.log(info);
-    })
+    new Promise((resolve, reject) => {
+        mail.sendMail(mailOptions, (err, info) => {
+            if (err) {
+                reject (err)
+            } else {
+                resolve(console.log(info))
+            }
+        });
+    });
+    
 }
 
 module.exports = { sendEmailRegis, sendEmailChangePassword, sendEmailTwoFactor, sendEmailForgotPassword };
