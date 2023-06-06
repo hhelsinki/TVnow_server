@@ -1,12 +1,13 @@
 const pool = require('./database.js');
-const baseApiKey = require('../api-key.js');
+require('dotenv').config()
+const baseKeyApi = process.env.BASEKEY_API;
 const { sendEmailForgotPassword } = require('../services/email-sender.js');
 
 const getEmailGiftcard = (req, res) => {
-    let api_key = req.headers.api_key;
+    let api_key = req.headers['api-key'];
     const email_used = req.body.email_used;
 
-    if (api_key === baseApiKey) {
+    if (api_key === baseKeyApi) {
         if (!email_used) {res.sendStatus(401); return;}
 
         pool.query('SELECT * FROM giftcard WHERE email_used = ?', [email_used], (err, result) => {
@@ -35,17 +36,17 @@ const getEmailGiftcard = (req, res) => {
         });
         return;
     }
-    if (api_key != baseApiKey) {
+    if (api_key != baseKeyApi) {
         res.sendStatus(402);
         return;
     }
 }
 
 const getUserProfile = (req, res) => {
-    let api_key = req.headers.api_key;
-    let token = req.headers.user_token;
+    let api_key = req.headers['api-key'];
+    let token = req.headers['user-token'];
 
-    if (api_key === baseApiKey) {
+    if (api_key === baseKeyApi) {
         if (!token) {res.sendStatus(401); return;}
 
         pool.query('SELECT * FROM user WHERE BINARY access_token = ?', [token], (err, result) => {
@@ -90,7 +91,7 @@ const getUserProfile = (req, res) => {
         });
         return;
     }
-    if (api_key != baseApiKey) {
+    if (api_key != baseKeyApi) {
         res.sendStatus(402);
         return;
     }
@@ -99,10 +100,12 @@ const getUserProfile = (req, res) => {
 }
 
 const getForgotPassword = (req, res) => {
-    let api_key = req.headers.api_key;
+    let api_key = req.headers['api-key'];
     const email = req.body.email;
+    
+    console.log(api_key);
 
-    if (api_key === baseApiKey) {
+    if (api_key === baseKeyApi) {
         if (!email) {res.sendStatus(401); return; }
 
         pool.query('SELECT * FROM user WHERE email = ?', email, (err, result) => {
@@ -114,13 +117,13 @@ const getForgotPassword = (req, res) => {
                     break;
                 default:
                     let userResult = result[0];
-                    sendEmailForgotPassword(email, userResult.username, userResult.password);
+                    //sendEmailForgotPassword(email, userResult.username, userResult.password);
                     res.send({status:true, msg: 'The password has been send to your email.'});
                     break;
             }
         })
     }
-    if (api_key != baseApiKey) {
+    if (api_key != baseKeyApi) {
         res.sendStatus(405);
         return;
     }

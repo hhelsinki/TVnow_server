@@ -1,14 +1,15 @@
 const pool = require('../mysql/database.js');
-const baseApiKey = require('../api-key.js');
+require('dotenv').config()
+const baseKeyApi = process.env.BASEKEY_API;
 const { VerifaliaRestClient } = require('verifalia');
 
 
 function EmailValidate(req, res) {
-    let api_key = req.headers.api_key;
+    let api_key = req.headers['api-key'];
     const email = req.body.email;
 
     //console.log(typeof email);
-    if (api_key === baseApiKey) {
+    if (api_key === baseKeyApi) {
         if (!email) {
             res.sendStatus(401);
             return;
@@ -48,7 +49,7 @@ function EmailValidate(req, res) {
             });
 
     }
-    if (api_key != baseApiKey) {
+    if (api_key != baseKeyApi) {
         res.sendStatus(402);
     }
 }

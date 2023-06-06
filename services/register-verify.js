@@ -1,12 +1,13 @@
-const baseApiKey = require('../api-key.js');
+require('dotenv').config()
+const baseKeyApi = process.env.BASEKEY_API;
 const pool = require('../mysql/database.js');
 
 function registerVerify(req, res) {
-	let api_key = req.headers.api_key;
+	let api_key = req.headers['api-key'];
 	const user = req.query.user;
 	const token = req.query.token;
 
-	if (api_key === baseApiKey) {
+	if (api_key === baseKeyApi) {
 		if (!user) {res.sendStatus(401); return; }
 		if (!token) {res.sendStatus(401); return; }
 
@@ -42,7 +43,7 @@ function registerVerify(req, res) {
 
 		});
 	}
-	if (api_key != baseApiKey) {
+	if (api_key != baseKeyApi) {
 		res.sendStatus(402);
 	}
 

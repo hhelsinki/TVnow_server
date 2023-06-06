@@ -2,15 +2,15 @@ const { access_token } = require('../services/password-generate.js');
 const { sendEmailChangePassword } = require('../services/email-sender.js');
 const pool = require('./database.js');
 const randtoken = require('rand-token');
-const keyBaseApi = require('../api-key.js');
-const baseApiKey = require('../api-key.js');
+require('dotenv').config()
+const baseKeyApi = process.env.BASEKEY_API;
 
 const updateGiftcardEmail = (req, res) => {
-    let api_key = req.headers.api_key;
+    let api_key = req.headers['api-key'];
     const email_used = req.body.email_used;
     const giftcard_code = req.body.giftcard_code;
 
-    if (api_key === keyBaseApi) {
+    if (api_key === baseKeyApi) {
         if (!email_used) { res.sendStatus(401); return; }
         if (!giftcard_code) { res.sendStatus(401); return; }
 
@@ -39,7 +39,7 @@ const updateGiftcardEmail = (req, res) => {
         });
 
     }
-    if (api_key != keyBaseApi) {
+    if (api_key != baseKeyApi) {
         res.sendStatus(402);
         return;
     }
@@ -47,12 +47,12 @@ const updateGiftcardEmail = (req, res) => {
 
 }
 const updateUserPassword = (req, res) => {
-    let api_key = req.headers.api_key;
-    let token = req.headers.user_token;
+    let api_key = req.headers['api-key'];
+    let token = req.headers['user-token'];
     const email = req.body.email;
     const password_new = req.body.password_new;
 
-    if (api_key === baseApiKey) {
+    if (api_key === baseKeyApi) {
         if (!token) { res.sendStatus(401); return; }
         if (!email) { res.sendStatus(401); return; }
         if (!password_new) { res.sendStatus(401); return; }
@@ -91,18 +91,18 @@ const updateUserPassword = (req, res) => {
                 break;
         }
     }
-    if (api_key != baseApiKey) {
+    if (api_key != baseKeyApi) {
         res.sendStatus(402);
         return;
     }
 }
 function updateTwoFactor(req, res) {
-    let api_key = req.headers.api_key;
+    let api_key = req.headers['api-key'];
     const email = req.body.email;
     const id_token = req.body.id_token;
     const timekey_token = req.body.timekey_token;
 
-    if (api_key === baseApiKey) {
+    if (api_key === baseKeyApi) {
         if (!email) { res.sendStatus(401); return; }
         if (!id_token) { res.sendStatus(401); return; }
         if (!timekey_token) { res.sendStatus(401); return; }
@@ -340,7 +340,7 @@ function updateTwoFactor(req, res) {
         });
         return;
     }
-    if (api_key != baseApiKey) {
+    if (api_key != baseKeyApi) {
         res.sendStatus(402);
         return;
     }
@@ -349,11 +349,11 @@ function updateTwoFactor(req, res) {
 }
 
 function reqUserPassword(req, res) {
-    let api_key = req.headers.api_key;
-    let token = req.headers.user_token;
+    let api_key = req.headers['api-key'];
+    let token = req.headers['user-token'];
     const password = req.body.password;
 
-    if (api_key === baseApiKey) {
+    if (api_key === baseKeyApi) {
         if (!token) { res.sendStatus(401); return; }
         if (!password) { res.sendStatus(401); return; }
 
@@ -387,7 +387,7 @@ function reqUserPassword(req, res) {
         });
         return;
     }
-    if (api_key != baseApiKey) {
+    if (api_key != baseKeyApi) {
         res.sendStatus(402);
         return;
     }
@@ -396,12 +396,12 @@ function reqUserPassword(req, res) {
 }
 
 const reqUserTwoFactor = (req, res) => {
-    let api_key = req.headers.api_key;
-    let access_token = req.headers.user_token;
+    let api_key = req.headers['api-key'];
+    let access_token = req.headers['user-token'];
     const bool = req.body.bool;
     const email = req.body.email;
 
-    if (api_key === baseApiKey) {
+    if (api_key === baseKeyApi) {
         if (!access_token) { res.sendStatus(401); console.log('no access_token'); return; }
         //if (!bool) { res.sendStatus(401); console.log('no bool'); return; }
         //if (!email) { res.sendStatus(401); console.log('no email'); return; }
@@ -432,7 +432,7 @@ const reqUserTwoFactor = (req, res) => {
         });
         return;
     }
-    if (api_key != baseApiKey) {
+    if (api_key != baseKeyApi) {
         res.sendStatus(402);
         return;
     }
@@ -440,11 +440,11 @@ const reqUserTwoFactor = (req, res) => {
 
 }
 const reqUserRedeemGiftcard = (req, res) => {
-    let api_key = req.headers.api_key;
-    let user_token = req.headers.user_token;
+    let api_key = req.headers['api-key'];
+    let user_token = req.headers['user-token'];
     const code = req.body.code;
 
-    if (api_key === baseApiKey) {
+    if (api_key === baseKeyApi) {
         if (!user_token) { res.sendStatus(401); return; }
         if (!code) { res.sendStatus(401); return; }
 
@@ -549,7 +549,7 @@ const reqUserRedeemGiftcard = (req, res) => {
         return;
     }
 
-    if (api_key != baseApiKey) {
+    if (api_key != baseKeyApi) {
         res.sendStatus(402);
         return;
     }

@@ -1,27 +1,21 @@
 const { MongoClient } = require('mongodb');
-const baseApiKey = require('../api-key');
-const MongoClients = require('mongodb').MongoClient
 require('dotenv').config()
+const baseKeyApi = process.env.BASEKEY_API;
+const MongoClients = require('mongodb').MongoClient
 
+//const url = 'mongodb://localhost:27017';
 const url = process.env.MONGO_URL;
 const client = new MongoClient(url);
 const dbName = 'favourite';
 const collection = client.db(dbName).collection('list');
 
-/*
-const url = 'mongodb://localhost:27017';
-const client = new MongoClient(url);
-const dbName = 'favourite';
-const collection = client.db(dbName).collection('list');
-*/
-
 
 async function findResult(req, res) {
-  let api_key = req.headers.api_key;
-  let user_token = req.headers.user_token;
+  let api_key = req.headers['api-key'];
+  let user_token = req.headers['user-token'];
   let title = req.query.title;
 
-  if (api_key === baseApiKey) {
+  if (api_key === baseKeyApi) {
     switch (user_token) {
       case null: case undefined:
         res.send(401);
@@ -59,18 +53,18 @@ async function findResult(req, res) {
         return 'done.';
     }
   }
-  if (api_key != baseApiKey) {
+  if (api_key != baseKeyApi) {
     res.send(402);
   }
 }
 
 async function setField(req, res) {
-  let api_key = req.headers.api_key;
-  let user_token = req.headers.user_token;
+  let api_key = req.headers['api-key'];
+  let user_token = req.headers['user-token'];
   const content_title = req.body.title;
   const content_bool = req.body.bool;
 
-  if (api_key === baseApiKey) {
+  if (api_key === baseKeyApi) {
     switch (user_token) {
       case null: case undefined:
         res.send(401);
@@ -122,16 +116,16 @@ async function setField(req, res) {
         return;
     }
   }
-  if (api_key != baseApiKey) {
+  if (api_key != baseKeyApi) {
     res.send(402);
   }
 }
 
 async function getFavouriteList(req, res) {
-  let api_key = req.headers.api_key;
-  let user_token = req.headers.user_token;
+  let api_key = req.headers['api-key'];
+  let user_token = req.headers['user-token'];
 
-  if (api_key === baseApiKey) {
+  if (api_key === baseKeyApi) {
     switch (user_token) {
       case null: case undefined:
         res.send(401);
@@ -160,7 +154,7 @@ async function getFavouriteList(req, res) {
 
     }
   }
-  if (api_key != baseApiKey) {
+  if (api_key != baseKeyApi) {
     res.sendStatus(402);
   }
 

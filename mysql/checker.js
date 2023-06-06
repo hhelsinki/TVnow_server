@@ -1,11 +1,12 @@
 const pool = require('./database.js');
-const baseApiKey = require('../api-key.js')
+require('dotenv').config()
+const baseKeyApi = process.env.BASEKEY_API;
 
 function checkEmail(req, res) {
-    const api_key = req.headers.api_key;
+    let api_key = req.headers['api-key'];
     var email = req.body.email;
 
-    if (api_key === baseApiKey) {
+    if (api_key === baseKeyApi) {
         if (!email) {res.sendStatus(401); return;}
 
         pool.query(`SELECT * FROM user WHERE email = ?`, [email], (err, result) => {
@@ -24,7 +25,7 @@ function checkEmail(req, res) {
         });
         return;
     }
-    if (api_key != baseApiKey) {
+    if (api_key != baseKeyApi) {
         res.sendStatus(402);
         return;
     }
@@ -32,10 +33,10 @@ function checkEmail(req, res) {
 
 }
 function checkUsername(req, res) {
-    let api_key = req.headers.api_key;
+    let api_key = req.headers['api-key'];
     const username = req.body.username;
 
-    if (api_key === baseApiKey) {
+    if (api_key === baseKeyApi) {
         if (!username) {res.sendStatus(401); return;}
 
         pool.query(`SELECT * FROM user WHERE username = ?`, [username], (err, result) => {
@@ -54,7 +55,7 @@ function checkUsername(req, res) {
         });
         return;
     }
-    if (api_key != baseApiKey) {
+    if (api_key != baseKeyApi) {
         res.sendStatus(402);
         return;
     }
@@ -63,10 +64,10 @@ function checkUsername(req, res) {
 }
 
 function checkGiftcard(req, res) {
-    let api_key = req.headers.api_key;
+    let api_key = req.headers['api-key'];
     const giftcard_code = req.body.giftcard_code;
 
-    if (api_key === baseApiKey) {
+    if (api_key === baseKeyApi) {
         if (!giftcard_code) {res.sendStatus(401); return;}
 
         pool.query(`SELECT * FROM giftcard WHERE code = ?`, (giftcard_code), (err, result) => {
@@ -96,7 +97,7 @@ function checkGiftcard(req, res) {
         });
         return;
     }
-    if (api_key != baseApiKey) {
+    if (api_key != baseKeyApi) {
         res.sendStatus(402);
         return;
     }

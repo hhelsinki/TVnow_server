@@ -6,7 +6,8 @@ const timekey = require('rand-token').generator({
 });
 const { sendEmailTwoFactor } = require('./email-sender.js');
 const { MongoClient } = require('mongodb');
-const baseApiKey = require('../api-key.js');
+require('dotenv').config()
+const baseKeyApi = process.env.BASEKEY_API;
 //const url = 'mongodb://localhost:27017';
 const url = process.env.MONGO_URL;
 const client = new MongoClient(url);
@@ -14,11 +15,11 @@ const dbName = 'favourite';
 const collection = client.db(dbName).collection('list');
 
 function login(req, res) {
-    let api_key = req.headers.api_key;
+    let api_key = req.headers['api-key'];
     const username = req.body.username;
     const password = req.body.password;
 
-    if (api_key === baseApiKey) {
+    if (api_key === baseKeyApi) {
         pool.query('SELECT * FROM user WHERE (username = ? || email = ?)', [username, username], (err, result) => {
             if (err) throw err;
             let results = result[0];
@@ -127,18 +128,18 @@ function login(req, res) {
         });
         return;
     }
-    if (api_key != baseApiKey) {
+    if (api_key != baseKeyApi) {
         res.sendStatus(402);
         return;
     }
 
 }
 function logout(req, res) {
-    let api_key = req.headers.api_key;
+    let api_key = req.headers['api-key'];
     const email = req.body.email;
     const access_token = randtoken.generate(20);
 
-    if (api_key === baseApiKey) {
+    if (api_key === baseKeyApi) {
         pool.query('UPDATE user SET access_token = ? WHERE email = ?', [access_token, email], (err, result) => {
             if (err) throw err;
             switch (result.effectedRows) {
@@ -168,7 +169,7 @@ function logout(req, res) {
             }
         });
     }
-    if (api_key != baseApiKey) {
+    if (api_key != baseKeyApi) {
         res.sendStatus(402);
         return;
     }

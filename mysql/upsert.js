@@ -2,15 +2,16 @@ const pool = require('./database.js');
 const crypto = require('crypto');
 const randtoken = require('rand-token');
 const { sendEmailRegis } = require('../services/email-sender.js');
-const baseApiKey = require('../api-key.js');
+require('dotenv').config()
+const baseKeyApi = process.env.BASEKEY_API;
 
 function upsertUser(req, res) {
-	let api_key = req.headers.api_key;
+	let api_key = req.headers['api-key'];
 	const email = req.body.email;
 	const plan = req.body.plan;
 	const username = req.body.username;
 
-	if (api_key = baseApiKey) {
+	if (api_key = baseKeyApi) {
 		//giftcard
 		if (!email) { res.sendStatus(401); return; }
 		if (!plan) { res.sendStatus(401); return; }
@@ -118,7 +119,7 @@ function upsertUser(req, res) {
 		});
 		return;
 	}
-	if (api_key != baseApiKey) {
+	if (api_key != baseKeyApi) {
 		res.sendStatus(402);
 		return;
 	}

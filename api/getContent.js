@@ -1,5 +1,6 @@
 const pool = require('../mysql/database');
-const baseApiKey = require("../api-key");
+require('dotenv').config()
+const baseKeyApi = process.env.BASEKEY_API;
 
 //Import json
 const originHome = require('../json/content-home.js');
@@ -62,8 +63,8 @@ class JsonLimit {
 
     onCalculate(req, res) {
         const getJson = this.mainJson;
-        let api_key = req.headers.api_key;
-        let user_token = req.headers.user_token;
+        let api_key = req.headers['api-key'];
+        let user_token = req.headers['user-token'];
         const limit_str = req.query.limit; //pass
         const page_str = req.query.page; //pass
         const limit = Number(limit_str)
@@ -76,7 +77,7 @@ class JsonLimit {
         let status;
         var output = [];
 
-        if (api_key === baseApiKey) {
+        if (api_key === baseKeyApi) {
             if (!user_token) { res.sendStatus(401); return; }
 
             pool.query('SELECT * FROM user WHERE BINARY access_token = ?', user_token, (err, result) => {
@@ -174,7 +175,7 @@ class JsonLimit {
             });
             return;
         }
-        if (api_key != baseApiKey) {
+        if (api_key != baseKeyApi) {
             res.sendStatus(402);
             return;
         }
@@ -270,10 +271,10 @@ class JsonAll {
 
     onCalculate(req, res) {
         const getJson = this.mainJson;
-        let api_key = req.headers.api_key;
-        let user_token = req.headers.user_token;
+        let api_key = req.headers['api-key'];
+        let user_token = req.headers['user-token'];
 
-        if (api_key === baseApiKey) {
+        if (api_key === baseKeyApi) {
             if (!user_token) { res.sendStatus(401); return; }
 
             pool.query('SELECT * FROM user WHERE BINARY access_token = ?', user_token, (err, result) => {
@@ -290,7 +291,7 @@ class JsonAll {
             });
             return;
         }
-        if (api_key != baseApiKey) {
+        if (api_key != baseKeyApi) {
             res.sendStatus(402);
             return;
         }
@@ -320,10 +321,10 @@ var getSuspense = new JsonAll(suspense);
 var getThriller = new JsonAll(thriller);
 
 /*const getShowcase = (req, res) => {
-    let api_key = req.headers.api_key;
-    let user_token = req.headers.user_token;
+    let api_key = req.headers['api-key'];
+    let user_token = req.headers['user-token'];
 
-    if (api_key === baseApiKey) {
+    if (api_key === baseKeyApi) {
         if (!user_token) { res.sendStatus(401); return; }
 
         pool.query('SELECT * FROM user WHERE BINARY access_token = ?', user_token, (err, result) => {
@@ -341,469 +342,7 @@ var getThriller = new JsonAll(thriller);
         });
         return;
     }
-    if (api_key != baseApiKey) {
-        res.sendStatus(402);
-        return;
-    }
-}
-const getTrendingAll = (req, res) => {
-    let api_key = req.headers.api_key;
-    let user_token = req.headers.user_token;
-
-    if (api_key === baseApiKey) {
-        if (!user_token) { res.sendStatus(401); return; }
-
-        pool.query('SELECT * FROM user WHERE BINARY access_token = ?', user_token, (err, result) => {
-            if (err) throw err;
-
-            switch (result[0]) {
-                case null: case undefined:
-                    res.sendStatus(401);
-                    break;
-                default:
-                    //output
-                    res.status(200).json(trending)
-                    break;
-
-            }
-        });
-        return;
-    }
-    if (api_key != baseApiKey) {
-        res.sendStatus(402);
-        return;
-    }
-}
-const getMostWatchAll = (req, res) => {
-    let api_key = req.headers.api_key;
-    let user_token = req.headers.user_token;
-
-    if (api_key === baseApiKey) {
-        if (!user_token) { res.sendStatus(401); return; }
-
-            pool.query('SELECT * FROM user WHERE BINARY access_token = ?', user_token, (err, result) => {
-                if (err) throw err;
-
-                switch (result[0]) {
-                    case null: case undefined:
-                        res.sendStatus(401);
-                        break;
-                    default:
-                        //output
-                        res.status(200).json(mostWatch)
-                        break;
-
-                }
-            });
-            return;
-    }
-    if (api_key != baseApiKey) {
-        res.sendStatus(402);
-        return;
-    }
-}
-const getRecentAddAll = (req, res) => {
-    let api_key = req.headers.api_key;
-    let user_token = req.headers.user_token;
-
-    if (api_key === baseApiKey) {
-        if (!user_token) { res.sendStatus(401); return; }
-   
-            pool.query('SELECT * FROM user WHERE BINARY access_token = ?', user_token, (err, result) => {
-                if (err) throw err;
-
-                switch (result[0]) {
-                    case null: case undefined:
-                        res.sendStatus(401);
-                        break;
-                    default:
-                        //output
-                        res.status(200).json(recentAdd)
-                        break;
-
-                }
-            });
-    }
-    if (api_key != baseApiKey) {
-        res.sendStatus(402);
-        return;
-    }
-}
-const getExclusiveAll = (req, res) => {
-    let api_key = req.headers.api_key;
-    let user_token = req.headers.user_token;
-
-    if (api_key === baseApiKey) {
-        if (!user_token) { res.sendStatus(401); return; }
-
-            pool.query('SELECT * FROM user WHERE BINARY access_token = ?', user_token, (err, result) => {
-                if (err) throw err;
-
-                switch (result[0]) {
-                    case null: case undefined:
-                        res.sendStatus(401);
-                        break;
-                    default:
-                        //output
-                        res.status(200).json(exclusive)
-                        break;
-
-                }
-            });
-            return;
-    }
-    if (api_key != baseApiKey) {
-        res.sendStatus(402);
-        return;
-    }
-}*/
-
-//new api
-/*const getCateAction = (req, res) => {
-    let api_key = req.headers.api_key;
-    let user_token = req.headers.user_token;
-
-    if (api_key === baseApiKey) {
-        if (!user_token) { res.sendStatus(401); return; }
-
-            pool.query('SELECT * FROM user WHERE BINARY access_token = ?', user_token, (err, result) => {
-                if (err) throw err;
-
-                switch (result[0]) {
-                    case null: case undefined:
-                        res.sendStatus(401);
-                        break;
-                    default:
-                        //output
-                        res.send(action);
-                        break;
-                }
-            });
-            return;
-    }
-    if (api_key != baseApiKey) {
-        res.sendStatus(402);
-        return;
-    }
-}
-const getCateCartoon = (req, res) => {
-    let api_key = req.headers.api_key;
-    let user_token = req.headers.user_token;
-
-    if (api_key === baseApiKey) {
-        if (!user_token) { res.sendStatus(401); return; }
-
-            pool.query('SELECT * FROM user WHERE BINARY access_token = ?', user_token, (err, result) => {
-                if (err) throw err;
-
-                switch (result[0]) {
-                    case null: case undefined:
-                        res.sendStatus(401);
-                        break;
-                    default:
-                        //output
-                        res.send(cartoon);
-                        break;
-                }
-            });
-            return;
-    }
-    if (api_key != baseApiKey) {
-        res.sendStatus(402);
-        return;
-    }
-}
-const getCateComedy = (req, res) => {
-    let api_key = req.headers.api_key;
-    let user_token = req.headers.user_token;
-
-    if (api_key === baseApiKey) {
-        if (!user_token) { res.sendStatus(401); return; }
-
-            pool.query('SELECT * FROM user WHERE BINARY access_token = ?', user_token, (err, result) => {
-                if (err) throw err;
-
-                switch (result[0]) {
-                    case null: case undefined:
-                        res.sendStatus(401);
-                        break;
-                    default:
-                        //output
-                        res.send(comedy);
-                        break;
-                }
-            });
-            return;
-    }
-    if (api_key != baseApiKey) {
-        res.sendStatus(402);
-        return;
-    }
-}
-const getCateCrime = (req, res) => {
-    let api_key = req.headers.api_key;
-    let user_token = req.headers.user_token;
-
-    if (api_key === baseApiKey) {
-        if (!user_token) { res.sendStatus(401); return; }
-
-            pool.query('SELECT * FROM user WHERE BINARY access_token = ?', user_token, (err, result) => {
-                if (err) throw err;
-
-                switch (result[0]) {
-                    case null: case undefined:
-                        res.sendStatus(401);
-                        break;
-                    default:
-                        //output
-                        res.send(crime);
-                        break;
-                }
-            });
-            return;
-    }
-    if (api_key != baseApiKey) {
-        res.sendStatus(402);
-        return;
-    }
-}
-const getCateDrama = (req, res) => {
-    let api_key = req.headers.api_key;
-    let user_token = req.headers.user_token;
-
-    if (api_key === baseApiKey) {
-        if (!user_token) { res.sendStatus(401); return; }
-
-            pool.query('SELECT * FROM user WHERE BINARY access_token = ?', user_token, (err, result) => {
-                if (err) throw err;
-
-                switch (result[0]) {
-                    case null: case undefined:
-                        res.sendStatus(401);
-                        break;
-                    default:
-                        //output
-                        res.send(drama);
-                        break;
-                }
-            });
-            return;
-    }
-    if (api_key != baseApiKey) {
-        res.sendStatus(402);
-        return;
-    }
-}
-const getCateFantasy = (req, res) => {
-    let api_key = req.headers.api_key;
-    let user_token = req.headers.user_token;
-
-    if (api_key === baseApiKey) {
-        if (!user_token) { res.sendStatus(401); return; }
-        if (user_token) {
-            pool.query('SELECT * FROM user WHERE BINARY access_token = ?', user_token, (err, result) => {
-                if (err) throw err;
-
-                switch (result[0]) {
-                    case null: case undefined:
-                        res.sendStatus(401);
-                        break;
-                    default:
-                        //output
-                        res.send(fantasy);
-                        break;
-                }
-            });
-            return;
-        }
-    }
-    if (api_key != baseApiKey) {
-        res.sendStatus(402);
-        return;
-    }
-}
-const getCateHorror = (req, res) => {
-    let api_key = req.headers.api_key;
-    let user_token = req.headers.user_token;
-
-    if (api_key === baseApiKey) {
-        if (!user_token) {
-            res.sendStatus(401);
-            return;
-        }
-        if (user_token) {
-            pool.query('SELECT * FROM user WHERE BINARY access_token = ?', user_token, (err, result) => {
-                if (err) throw err;
-
-                switch (result[0]) {
-                    case null: case undefined:
-                        res.sendStatus(401);
-                        break;
-                    default:
-                        //output
-                        res.send(horror);
-                        break;
-                }
-            });
-            return;
-        }
-    }
-    if (api_key != baseApiKey) {
-        res.sendStatus(402);
-        return;
-    }
-}
-const getCateLGBTQ = (req, res) => {
-    let api_key = req.headers.api_key;
-    let user_token = req.headers.user_token;
-
-    if (api_key === baseApiKey) {
-        if (!user_token) {
-            res.sendStatus(401);
-            return;
-        }
-        if (user_token) {
-            pool.query('SELECT * FROM user WHERE BINARY access_token = ?', user_token, (err, result) => {
-                if (err) throw err;
-
-                switch (result[0]) {
-                    case null: case undefined:
-                        res.sendStatus(401);
-                        break;
-                    default:
-                        //output
-                        res.send(lgbtq);
-                        break;
-                }
-            });
-            return;
-        }
-    }
-    if (api_key != baseApiKey) {
-        res.sendStatus(402);
-        return;
-    }
-}
-const getCateRomance = (req, res) => {
-    let api_key = req.headers.api_key;
-    let user_token = req.headers.user_token;
-
-    if (api_key === baseApiKey) {
-        if (!user_token) {
-            res.sendStatus(401);
-            return;
-        }
-        if (user_token) {
-            pool.query('SELECT * FROM user WHERE BINARY access_token = ?', user_token, (err, result) => {
-                if (err) throw err;
-
-                switch (result[0]) {
-                    case null: case undefined:
-                        res.sendStatus(401);
-                        break;
-                    default:
-                        //output
-                        res.send(romance);
-                        break;
-                }
-            });
-            return;
-        }
-    }
-    if (api_key != baseApiKey) {
-        res.sendStatus(402);
-        return;
-    }
-}
-const getCateSciFi = (req, res) => {
-    let api_key = req.headers.api_key;
-    let user_token = req.headers.user_token;
-
-    if (api_key === baseApiKey) {
-        if (!user_token) {
-            res.sendStatus(401);
-            return;
-        }
-        if (user_token) {
-            pool.query('SELECT * FROM user WHERE BINARY access_token = ?', user_token, (err, result) => {
-                if (err) throw err;
-
-                switch (result[0]) {
-                    case null: case undefined:
-                        res.sendStatus(401);
-                        break;
-                    default:
-                        //output
-                        res.send(scifi);
-                        break;
-                }
-            });
-            return;
-        }
-    }
-    if (api_key != baseApiKey) {
-        res.sendStatus(402);
-        return;
-    }
-}
-const getCateSuspense = (req, res) => {
-    let api_key = req.headers.api_key;
-    let user_token = req.headers.user_token;
-
-    if (api_key === baseApiKey) {
-        if (!user_token) {
-            res.sendStatus(401);
-            return;
-        }
-        if (user_token) {
-            pool.query('SELECT * FROM user WHERE BINARY access_token = ?', user_token, (err, result) => {
-                if (err) throw err;
-
-                switch (result[0]) {
-                    case null: case undefined:
-                        res.sendStatus(401);
-                        break;
-                    default:
-                        //output
-                        res.send(suspense);
-                        break;
-                }
-            });
-            return;
-        }
-    }
-    if (api_key != baseApiKey) {
-        res.sendStatus(402);
-        return;
-    }
-}
-const getCateThriller = (req, res) => {
-    let api_key = req.headers.api_key;
-    let user_token = req.headers.user_token;
-
-    if (api_key === baseApiKey) {
-        if (!user_token) {
-            res.sendStatus(401);
-            return;
-        }
-        if (user_token) {
-            pool.query('SELECT * FROM user WHERE BINARY access_token = ?', user_token, (err, result) => {
-                if (err) throw err;
-
-                switch (result[0]) {
-                    case null: case undefined:
-                        res.sendStatus(401);
-                        break;
-                    default:
-                        //output
-                        res.send(thriller);
-                        break;
-                }
-            });
-            return;
-        }
-    }
-    if (api_key != baseApiKey) {
+    if (api_key != baseKeyApi) {
         res.sendStatus(402);
         return;
     }
@@ -811,10 +350,10 @@ const getCateThriller = (req, res) => {
 
 
 function getAllByNameQuery(req, res) {
-    let api_key = req.headers.api_key;
-    let user_token = req.headers.user_token;
+    let api_key = req.headers['api-key'];
+    let user_token = req.headers['user-token'];
 
-    if (api_key === baseApiKey) {
+    if (api_key === baseKeyApi) {
         if (!user_token) {
             res.sendStatus(401);
             return;
@@ -835,17 +374,17 @@ function getAllByNameQuery(req, res) {
         });
         return;
     }
-    if (api_key != baseApiKey) {
+    if (api_key != baseKeyApi) {
         res.sendStatus(402);
         return;
     }
 }
 
 const getShowByNameQuery = (req, res) => {
-    let api_key = req.headers.api_key;
-    let user_token = req.headers.user_token;
+    let api_key = req.headers['api-key'];
+    let user_token = req.headers['user-token'];
 
-    if (api_key === baseApiKey) {
+    if (api_key === baseKeyApi) {
         if (!user_token) {
             res.status(200).json({
                 info: contentShows[req.params.name].info,
@@ -857,16 +396,16 @@ const getShowByNameQuery = (req, res) => {
         res.status(200).json(contentShows[req.params.name])
 
     }
-    if (api_key != baseApiKey) {
+    if (api_key != baseKeyApi) {
         res.sendStatus(402);
         return;
     }
 }
 const getMovieByNameQuery = (req, res) => {
-    let api_key = req.headers.api_key;
-    let user_token = req.headers.user_token;
+    let api_key = req.headers['api-key'];
+    let user_token = req.headers['user-token'];
 
-    if (api_key === baseApiKey) {
+    if (api_key === baseKeyApi) {
         if (!user_token) {
             res.status(200).json({
                 info: contentMovies[req.params.name].info,
@@ -876,7 +415,7 @@ const getMovieByNameQuery = (req, res) => {
         }
         res.status(200).json(contentMovies[req.params.name]);
     }
-    if (api_key != baseApiKey) {
+    if (api_key != baseKeyApi) {
         res.sendStatus(402);
         return;
     }
