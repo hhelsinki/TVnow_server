@@ -22,7 +22,7 @@ function registerVerify(req, res) {
 						pool.query('UPDATE user SET is_verify = 1 WHERE username = ?', [user], (err, result) => {
 							if (err) throw err;
 							console.log(result.affectedRows);
-							switch (result.effectedRows) {
+							switch (result.affectedRows) {
 								case 1:
 									res.send({ status: true, msg: 'correct username and token, redirect to client login page' });
 									break;

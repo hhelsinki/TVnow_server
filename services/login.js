@@ -31,7 +31,7 @@ function login(req, res) {
                     switch (results.is_verify) {
                         case 1:
                             if (password == results.password) {
-                                console.log('correct username n password');
+                                //console.log('correct username n password');
                                 //check if 2factor is enable
                                 switch (results.is_twofactor) {
                                     case 1:
@@ -46,25 +46,38 @@ function login(req, res) {
                                                     let authenResult = result[0];
                                                     const timestamp = Date.now();
                                                     let unix_timestamp = Math.floor(timestamp / 1000);
-                                                    
-                                                    if (authenResult.mistake_expire !== 0) {
-                                                        res.send({ status: 'false', msg: 'Please login again at', time: unix_timestamp + 3600 });
+
+                                                    //check mistake_expire
+                                                    if (authenResult.mistake_expire !== null) {
+                                                        console.log(authenResult.mistake_expire)
+                                                        res.send({ status: false, msg: 'Please login again at', time: unix_timestamp + 3600 });
                                                         return;
                                                     }
+
+                                                    //check if digit code is already send
+                                                    if (authenResult.timekey_expire > unix_timestamp && authenResult.mistake_count === 0 && authenResult.mistake_expire === null) {
+                                                        res.send({ status: false, msg: 'Please check your email or in spam folder.' });
+                                                        return;
+                                                    }
+
                                                     //do process
                                                     const timekey_id = timekey.generate(6);
                                                     const timekey_token = randtoken.generate(20);
-                                                    pool.query('UPDATE authen SET id_token = ?, timekey_token = ?, timekey_expire = UNIX_TIMESTAMP()+4500 WHERE email = ?', [timekey_id, timekey_token, results.email], (err, result) => {
+                                                    pool.query('UPDATE authen SET id_token = ?, timekey_token = ?, timekey_expire = UNIX_TIMESTAMP()+4500 WHERE email = ?', [timekey_id, timekey_token, authenResult.email], (err, result) => {
                                                         if (err) throw err;
-                                                        switch (result.effectedRows) {
+
+                                                        console.log('change' + result.changedRows);
+                                                        console.log('affected' + result.affectedRows);
+                                                        switch (result.affectedRows) {
                                                             case 1:
                                                                 sendEmailTwoFactor(results.email, timekey_id, timekey_token);
-                                                                res.send({ status: true, data: { username: results.email, token: timekey_token }, msg: 'Time based key is send to your email' });
+                                                                res.send({ status: true, is_twofactor: 1, msg: 'Please check your email' });
                                                                 break;
                                                             case 0: default:
                                                                 console.log('err db: id_token cannot update');
                                                                 break;
                                                         }
+
                                                     });
 
                                                     break;
@@ -140,34 +153,86 @@ function logout(req, res) {
     const access_token = randtoken.generate(20);
 
     if (api_key === baseKeyApi) {
-        pool.query('UPDATE user SET access_token = ? WHERE email = ?', [access_token, email], (err, result) => {
+        pool.query('SELECT * FROM user WHERE email = ?', email, (err, result) => {
             if (err) throw err;
-            switch (result.effectedRows) {
-                case 1:
-                    //upsert to mongo
-                    let updateNoSql = async () => {
-                        await client.connect();
-                        console.log('Connected successfully to server');
-                        const findUser = await collection.find({ user: email }).toArray();
 
-                        switch (findUser[0]) {
-                            case null: case undefined:
-                                res.send({ status: false, msg: 'Forbidden, login, logout is required' });
-                                break;
-                            default:
-                                const updateResult = await collection.updateOne({ user: email }, { $set: { token: access_token } });
-                                break;
-                        }
-                    }
-                    updateNoSql();
-                    res.send({ status: true, msg: 'Logout successfully!' })
+            switch (result[0]) {
+                case null: case undefined:
                     break;
-                case 0: default:
-                    console.log('db err: cannot update user access_token');
-                    res.send({ status: false, msg: 'You must login before logout.' });
+                default:
+                    let userResult = result[0];
+
+                    switch (userResult.is_twofactor) {
+                        case 1:
+                            pool.query('UPDATE authen SET id_token = NULL, timekey_expire = 0, mistake_count = 0, mistake_expire = NULL WHERE email = ?', email, (err, result) => {
+                                if (err) throw err;
+
+                                switch (result.affectedRows) {
+                                    case 1:
+                                        //upsert to mongo
+                                        let updateNoSql = async () => {
+                                            await client.connect();
+                                            console.log('Connected successfully to server');
+                                            const findUser = await collection.find({ user: email }).toArray();
+
+                                            switch (findUser[0]) {
+                                                case null: case undefined:
+                                                    res.send({ status: false, msg: 'Forbidden, login, logout is required' });
+                                                    break;
+                                                default:
+                                                    const updateResult = await collection.updateOne({ user: email }, { $set: { token: access_token } });
+                                                    break;
+                                            }
+                                        }
+                                        updateNoSql();
+                                        res.send({ status: true, msg: 'Logout successfully!' })
+                                        break;
+                                    default:
+                                        console.log('db error: cannot update authen');
+                                        break;
+                                }
+                            })
+                            break;
+                        default:
+                            pool.query('UPDATE user SET access_token = ? WHERE email = ?', [access_token, email], (err, result) => {
+                                if (err) throw err;
+
+                                //console.log(result.affectedRows);
+                                switch (result.affectedRows) {
+                                    case 1:
+                                        //upsert to mongo
+                                        let updateNoSql = async () => {
+                                            await client.connect();
+                                            console.log('Connected successfully to server');
+                                            const findUser = await collection.find({ user: email }).toArray();
+
+                                            switch (findUser[0]) {
+                                                case null: case undefined:
+                                                    res.send({ status: false, msg: 'Forbidden, login, logout is required' });
+                                                    break;
+                                                default:
+                                                    const updateResult = await collection.updateOne({ user: email }, { $set: { token: access_token } });
+                                                    break;
+                                            }
+                                        }
+                                        updateNoSql();
+                                        res.send({ status: true, msg: 'Logout successfully!' })
+                                        break;
+                                    case 0: default:
+                                        console.log('db err: cannot update user access_token');
+                                        res.send({ status: false, msg: 'You must login before logout.' });
+                                        break;
+                                }
+                            });
+                            break;
+                    }
+
                     break;
             }
         });
+
+
+
     }
     if (api_key != baseKeyApi) {
         res.sendStatus(402);

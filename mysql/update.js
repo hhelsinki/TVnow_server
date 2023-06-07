@@ -4,6 +4,12 @@ const pool = require('./database.js');
 const randtoken = require('rand-token');
 require('dotenv').config()
 const baseKeyApi = process.env.BASEKEY_API;
+const { MongoClient } = require('mongodb');
+//const url = 'mongodb://localhost:27017';
+const url = process.env.MONGO_URL;
+const client = new MongoClient(url);
+const dbName = 'favourite';
+const collection = client.db(dbName).collection('list');
 
 const updateGiftcardEmail = (req, res) => {
     let api_key = req.headers['api-key'];
@@ -68,20 +74,47 @@ const updateUserPassword = (req, res) => {
                             res.sendStatus(401);
                             break;
                         default:
-                            pool.query('UPDATE user SET password = ? WHERE email = ?', [password_new, email], (err, result) => {
-                                if (err) {
-                                    res.send({ status: false, msg: 'You must activate this account before change password' });
-                                }
-                                console.log(result.affectedRows);
-                                switch (result.affectedRows) {
-                                    case 1:
-                                        res.send({ status: true, msg: 'Password is successfully saved!' });
-                                        break;
-                                    case 0: default:
-                                        res.send({ stat: false, msg: 'Failed to save password' }).
-                                            break;
-                                }
-                            });
+                            let userResult = result[0];
+
+                            switch (userResult.is_twofactor) {
+                                case 1:
+                                    pool.query('UPDATE authen SET id_token = NULL, timekey_expire = 0, mistake_count = 0, mistake_expire = NULL WHERE email = ?', email, (err, result) => {
+                                        if (err) throw err;
+
+                                        pool.query('UPDATE user SET password = ? WHERE email = ?', [password_new, email], (err, result) => {
+                                            if (err) throw err;
+
+                                            //console.log(result.affectedRows);
+                                            switch (result.affectedRows) {
+                                                case 1:
+                                                    res.send({ status: true, msg: 'Password is successfully saved!' });
+                                                    break;
+                                                case 0: default:
+                                                    res.send({ stat: false, msg: 'Failed to save password' }).
+                                                        break;
+                                            }
+                                        });
+
+                                    })
+                                    break;
+                                default:
+                                    pool.query('UPDATE user SET password = ? WHERE email = ?', [password_new, email], (err, result) => {
+                                        if (err) throw err;
+
+                                        //console.log(result.affectedRows);
+                                        switch (result.affectedRows) {
+                                            case 1:
+                                                res.send({ status: true, msg: 'Password is successfully saved!' });
+                                                break;
+                                            case 0: default:
+                                                res.send({ stat: false, msg: 'Failed to save password' }).
+                                                    break;
+                                        }
+                                    });
+                                    break;
+                            }
+
+
                             break;
                     }
                 });
@@ -141,7 +174,7 @@ function updateTwoFactor(req, res) {
                                         console.log(result.affectedRows);
                                         switch (result.affectedRows) {
                                             case 1:
-                                                res.send({ status: 'false', msg: 'Please login again at', time: unix_timestamp + 3600 });
+                                                res.send({ status: false, msg: 'Please login again at', time: unix_timestamp + 3600 });
                                                 break;
                                             case 0:
                                                 res.sendStatus(500);
@@ -171,6 +204,24 @@ function updateTwoFactor(req, res) {
                                                         console.log(result.affectedRows);
                                                         switch (result.affectedRows) {
                                                             case 1:
+                                                                //upsert to mongo
+                                                                let insertNoSql = async () => {
+                                                                    await client.connect();
+                                                                    console.log('Connected successfully to server');
+                                                                    const findUser = await collection.find({ user: email }).toArray();
+
+                                                                    switch (findUser[0]) {
+                                                                        case null: case undefined:
+                                                                            const insertUser = await collection.insertOne({ user: email, token: access_token, data: [] });
+                                                                            console.log(insertUser)
+                                                                            break;
+                                                                        default:
+                                                                            const updateResult = await collection.updateOne({ user: email }, { $set: { token: access_token } });
+                                                                            console.log(updateResult)
+                                                                            break;
+                                                                    }
+                                                                }
+                                                                insertNoSql();
                                                                 res.send({ status: true, data: access_token });
                                                                 break;
                                                             case 0: default:
@@ -204,7 +255,7 @@ function updateTwoFactor(req, res) {
                     }
                     if (mistakeExpire !== 0) {
                         if (unix_timestamp > mistakeExpire) {
-                            pool.query('UPDATE authen SET mistake_count = 0, mistake_expire = 0 WHERE email = ?', email, (err, result) => {
+                            pool.query('UPDATE authen SET mistake_count = 0, mistake_expire = null WHERE email = ?', email, (err, result) => {
                                 if (err) throw err;
                                 console.log(result.affectedRows);
                                 switch (result.affectedRows) {
@@ -235,6 +286,24 @@ function updateTwoFactor(req, res) {
                                                             console.log(result.affectedRows);
                                                             switch (result.affectedRows) {
                                                                 case 1:
+                                                                    //upsert to mongo
+                                                                    let insertNoSql = async () => {
+                                                                        await client.connect();
+                                                                        console.log('Connected successfully to server');
+                                                                        const findUser = await collection.find({ user: email }).toArray();
+
+                                                                        switch (findUser[0]) {
+                                                                            case null: case undefined:
+                                                                                const insertUser = await collection.insertOne({ user: email, token: access_token, data: [] });
+                                                                                console.log(insertUser)
+                                                                                break;
+                                                                            default:
+                                                                                const updateResult = await collection.updateOne({ user: email }, { $set: { token: access_token } });
+                                                                                console.log(updateResult)
+                                                                                break;
+                                                                        }
+                                                                    }
+                                                                    insertNoSql();
                                                                     res.send({ status: true, data: access_token });
                                                                     break;
                                                                 case 0: default:
@@ -444,14 +513,14 @@ const reqUserRedeemGiftcard = (req, res) => {
     let user_token = req.headers['user-token'];
     const code = req.body.code;
 
+    console.log(code);
+
     if (api_key === baseKeyApi) {
         if (!user_token) { res.sendStatus(401); return; }
         if (!code) { res.sendStatus(401); return; }
 
         pool.query('SELECT * FROM user WHERE BINARY access_token = ?', [user_token], (err, result) => {
-            if (err) {
-                res.sendStatus(401);
-            }
+            if (err) throw err;
 
             switch (result[0]) {
                 case null: case undefined:
@@ -470,75 +539,76 @@ const reqUserRedeemGiftcard = (req, res) => {
                             default:
                                 let currentCode = result[0].code;
                                 let currentExpire = result[0].code_expire;
-                                pool.query('SELECT * FROM giftcard WHERE code = ?', currentCode, (err, result) => {
-                                    if (err) throw err;
+                                //pool.query('SELECT * FROM giftcard WHERE code = ?', currentCode, (err, result) => {
+                                //if (err) throw err;
 
-                                    switch (result[0]) {
-                                        case null: case undefined:
-                                            //res.send({ status: false, msg: 'Cannot find current code' });
-                                            console.log('cannot find current code');
-                                            break;
-                                        default:
-                                            pool.query('SELECT * FROM giftcard WHERE code = ? && is_used = 0', code, (err, result) => {
-                                                if (err) throw err;
+                                //switch (result[0]) {
+                                switch (currentCode) {
+                                    case null: case undefined:
+                                        //res.send({ status: false, msg: 'Cannot find current code' });
+                                        console.log('cannot find current code');
+                                        break;
+                                    default:
+                                        pool.query('SELECT * FROM giftcard WHERE code = ? && is_used = 0', code, (err, result) => {
+                                            if (err) throw err;
 
-                                                switch (result[0]) {
-                                                    case null: case undefined:
-                                                        res.send({ status: false, msg: 'Invalid code or this code is already in used.' });
-                                                        break;
-                                                    default:
-                                                        //redeem available on 7 days before expire
-                                                        let now = (new Date().getTime()) / 1000;
-                                                        now = ~~now;
-                                                        if (now >= currentExpire || now >= (currentExpire - (86400 * 7))) { //86400 = 1 day
+                                            switch (result[0]) {
+                                                case null: case undefined:
+                                                    res.send({ status: false, msg: 'Invalid code or this code is already in used.' });
+                                                    break;
+                                                default:
+                                                    //redeem available on 7 days before expire
+                                                    let now = (new Date().getTime()) / 1000;
+                                                    now = ~~now;
+                                                    if (now >= currentExpire || now >= (currentExpire - (86400 * 7))) { //86400 = 1 day
 
-                                                            pool.query('UPDATE giftcard SET email_used = null WHERE email_used = ?', [newEmail], (err, result) => {
-                                                                if (err) throw err;
-                                                                console.log(result.affectedRows);
-                                                                switch (result.affectedRows) {
-                                                                    case 1:
-                                                                        pool.query(`UPDATE giftcard SET is_used = 1, email_used = ?,code_expire = UNIX_TIMESTAMP() + 2592000 WHERE code = ?`, [newEmail, code], (err, result) => {
-                                                                            if (err) throw err;
+                                                        pool.query('UPDATE giftcard SET email_used = null WHERE email_used = ?', [newEmail], (err, result) => {
+                                                            if (err) throw err;
+                                                            console.log(result.affectedRows);
+                                                            switch (result.affectedRows) {
+                                                                case 1:
+                                                                    pool.query(`UPDATE giftcard SET is_used = 1, email_used = ?,code_expire = UNIX_TIMESTAMP() + 2592000 WHERE code = ?`, [newEmail, code], (err, result) => {
+                                                                        if (err) throw err;
 
-                                                                            switch (result.affectedRows) {
-                                                                                case 1:
-                                                                                    pool.query('UPDATE payment SET code = ? WHERE email = ?', [code, newEmail], (err, result) => {
-                                                                                        if (err) throw err;
-                                                                                        console.log(result.affectedRows);
-                                                                                        switch (result.affectedRows) {
-                                                                                            case 1:
-                                                                                                res.send({ status: true, msg: 'Redeem Code Successfully!' });
-                                                                                                break;
-                                                                                            case 0: default:
-                                                                                                console.log('db err: cannot update tb payment, col code');
-                                                                                                break;
-                                                                                        }
-                                                                                    })
-                                                                                    break;
-                                                                                case 0: default:
-                                                                                    console.log('db err: cannot update tb giftcard');
-                                                                                    break;
-                                                                            }
-                                                                        });
+                                                                        switch (result.affectedRows) {
+                                                                            case 1:
+                                                                                pool.query('UPDATE payment SET code = ? WHERE email = ?', [code, newEmail], (err, result) => {
+                                                                                    if (err) throw err;
+                                                                                    console.log(result.affectedRows);
+                                                                                    switch (result.affectedRows) {
+                                                                                        case 1:
+                                                                                            res.send({ status: true, msg: 'Redeem Code Successfully!' });
+                                                                                            break;
+                                                                                        case 0: default:
+                                                                                            console.log('db err: cannot update tb payment, col code');
+                                                                                            break;
+                                                                                    }
+                                                                                })
+                                                                                break;
+                                                                            case 0: default:
+                                                                                console.log('db err: cannot update tb giftcard');
+                                                                                break;
+                                                                        }
+                                                                    });
 
-                                                                        break;
-                                                                    case 0: default:
-                                                                        console.log('db err: cannot update tb giftcard');
-                                                                        break;
-                                                                }
-                                                            });
-                                                        }
-                                                        else {
-                                                            res.send({ status: false, msg: 'Cannot redeem yet, you can redeem before 7 day of expired date.' });
-                                                        }
+                                                                    break;
+                                                                case 0: default:
+                                                                    console.log('db err: cannot update tb giftcard');
+                                                                    break;
+                                                            }
+                                                        });
+                                                    }
+                                                    else {
+                                                        res.send({ status: false, msg: 'Cannot redeem yet, you can redeem before 7 day of expired date.' });
+                                                    }
 
-                                                        break;
-                                                }
-                                            });
+                                                    break;
+                                            }
+                                        });
 
-                                    }
+                                }
 
-                                });
+                                //});
                                 break;
                         }
                     });
