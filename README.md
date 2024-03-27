@@ -1,8 +1,2 @@
-# About
-This project is build by Nodejs, expressjs, mysql, mongodb
-
-# Live Version
-https://auto-tvnow.site
-
-# API Docs
-https://tvnow.stoplight.io/docs/tvnow/9iwd0lll87ipq-user-t-vnow
+# DEPRECATED and UNMAINTAINED
+Instead, it is recommended to use: tvnow_server_v1.2 https://github.com/hhelsinki/tvnow_server_v1.2
